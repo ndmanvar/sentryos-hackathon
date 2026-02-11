@@ -111,6 +111,82 @@ function DesktopContent() {
     })
   }
 
+  const openSentryTest = () => {
+    const handleClientError = () => {
+      throw new Error('Test Client-Side Error - This should appear in Sentry!')
+    }
+
+    const handleAsyncError = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      throw new Error('Test Async Error - This should appear in Sentry!')
+    }
+
+    const handleApiError = async () => {
+      try {
+        const response = await fetch('/api/sentry-test')
+        const data = await response.json()
+        alert(data.message || 'API call completed')
+      } catch (error) {
+        console.error('API Error:', error)
+      }
+    }
+
+    openWindow({
+      id: 'sentry-test',
+      title: 'Test Sentry',
+      icon: '🧪',
+      x: 250,
+      y: 150,
+      width: 500,
+      height: 400,
+      minWidth: 400,
+      minHeight: 300,
+      isMinimized: false,
+      isMaximized: false,
+      content: (
+        <div className="p-6 flex flex-col gap-4 h-full bg-[#1a1621]">
+          <h2 className="text-xl font-bold text-[#7553ff]">Sentry Error Testing</h2>
+          <p className="text-gray-300 text-sm">
+            Click any button below to trigger a test error. Check your Sentry dashboard to see if the error is captured.
+          </p>
+
+          <div className="flex flex-col gap-3 mt-4">
+            <button
+              onClick={handleClientError}
+              className="px-4 py-3 bg-[#7553ff] hover:bg-[#5d3fd9] text-white rounded-lg transition-colors font-medium"
+            >
+              🔴 Trigger Client Error
+            </button>
+
+            <button
+              onClick={() => handleAsyncError()}
+              className="px-4 py-3 bg-[#ff45a8] hover:bg-[#e03592] text-white rounded-lg transition-colors font-medium"
+            >
+              ⏱️ Trigger Async Error
+            </button>
+
+            <button
+              onClick={handleApiError}
+              className="px-4 py-3 bg-[#6c5ce7] hover:bg-[#5849c7] text-white rounded-lg transition-colors font-medium"
+            >
+              🌐 Trigger Server Error (API)
+            </button>
+          </div>
+
+          <div className="mt-auto pt-4 border-t border-gray-700">
+            <p className="text-xs text-gray-400">
+              ✓ Sentry is configured and ready
+              <br />
+              Project: <span className="text-[#7553ff]">neil-nextjs</span>
+              <br />
+              Org: <span className="text-[#7553ff]">the-open-sorcerers</span>
+            </p>
+          </div>
+        </div>
+      )
+    })
+  }
+
   const handleDesktopClick = () => {
     setSelectedIcon(null)
   }
@@ -161,6 +237,14 @@ function DesktopContent() {
           onDoubleClick={openChatWindow}
           selected={selectedIcon === 'chat'}
           onSelect={() => setSelectedIcon('chat')}
+        />
+        <DesktopIcon
+          id="sentry-test"
+          label="Test Sentry"
+          icon="terminal"
+          onDoubleClick={openSentryTest}
+          selected={selectedIcon === 'sentry-test'}
+          onSelect={() => setSelectedIcon('sentry-test')}
         />
       </div>
 
